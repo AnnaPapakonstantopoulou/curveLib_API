@@ -5,13 +5,13 @@ A FastAPI-based REST API for pricing vanilla **Interest Rate Swaps (IRS)** using
 ---
 ### Swagger UI and Claude with MCP server 
 
-The Swagger UI showing all available endpoints:
-
-![Swagger UI](docs/screenshot_swagger.png)
-
 Claude Desktop calling the `price_swap_bumped` tool and returning a formatted scenario analysis:
 
 ![MCP demo in Claude Desktop](docs/screenshot_mcp_demo.png)
+
+The Swagger UI showing all available endpoints:
+
+![Swagger UI](docs/screenshot_swagger.png)
 
 ---
 ## Overview
@@ -31,7 +31,6 @@ It is designed with **LLM integration in mind** — every response includes stru
 - **Structured explain blocks** on every response for LLM consumption
 
 ---
-
 ## Project Structure
 
 ```
@@ -45,7 +44,6 @@ src/my_package/
 ├── request_scenario_perturbation.json
 └── request_trade_info.json
 ```
-
 ---
 
 ## Getting Started
@@ -75,7 +73,6 @@ The API will be available at `http://127.0.0.1:8000`.
 Navigate to `http://127.0.0.1:8000/docs` for the interactive Swagger UI.
 
 > **Note:** Timeseries responses longer than ~20 days may not render fully in the Swagger UI. Use `curl` for longer date ranges.
-
 ---
 
 ## Curve Construction
@@ -101,7 +98,6 @@ Interpolation uses **log-linear** interpolation on discount factors between pill
 - Notional is not exchanged
 - Historical timeseries uses synthetic data (2 bps/day drift + random noise), not real historical rates
 - DV01 is an analytical approximation, not full bump-and-reprice
-
 ---
 
 ## API Endpoints
@@ -123,7 +119,6 @@ Returns descriptive metadata about a swap instrument without pricing it.
   "payOrReceive": "receive"
 }
 ```
-
 ---
 
 ### `POST /instrument/pricing`
@@ -150,7 +145,6 @@ curl -X POST http://127.0.0.1:8000/instrument/pricing \
   "explain": { "model": "discounted_cashflow_swap", ... }
 }
 ```
-
 ---
 
 ### `POST /instrument/pricing/bumped`
@@ -162,7 +156,6 @@ curl -X POST http://127.0.0.1:8000/instrument/pricing/bumped \
   -H "Content-Type: application/json" \
   -d @src/my_package/request_scenario_perturbation.json
 ```
-
 ---
 
 ### `POST /instrument/pricing/timeseries`
