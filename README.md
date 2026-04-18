@@ -1,6 +1,6 @@
 # IRS Pricing API
 
-A FastAPI-based REST API for pricing vanilla **Interest Rate Swaps (IRS)** using a bootstrapped discount curve. Built as a lightweight, LLM-friendly analytics backend.
+A FastAPI-based REST API for pricing vanilla **Interest Rate Swaps (IRS)** using a **bootstrapped discount curve**. Built as a lightweight, LLM-friendly analytics backend.
 
 ---
 ### Swagger UI and Claude with MCP server 
