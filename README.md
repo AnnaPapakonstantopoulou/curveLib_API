@@ -169,6 +169,81 @@ Interpolation uses **log-linear** interpolation on discount factors between pill
 
 ---
 
+## MCP Integration (Model Context Protocol)
+
+This project includes an **MCP server** (`mcp_server.py`) that wraps the FastAPI endpoints as callable tools, allowing any MCP-compatible LLM client (such as Claude Desktop) to price and analyse swaps directly in conversation — no manual API calls needed.
+
+### What is MCP?
+
+MCP (Model Context Protocol) is an open standard that lets LLMs connect to external tools and data sources. The MCP server in this project acts as a bridge: it translates natural-language requests into structured API calls to the FastAPI backend and returns the results back to the model.
+
+### Available MCP Tools
+
+| Tool | Description |
+|---|---|
+| `get_swap_info` | Returns descriptive metadata about a swap without pricing it |
+| `price_swap` | Prices the swap on the base curve — returns PV, par rate, DV01 |
+| `price_swap_bumped` | Reprices under a parallel curve shift (scenario / DV01) |
+| `get_swap_timeseries` | Daily par rate and PV series between two dates |
+
+### Setting Up MCP with Claude Desktop
+
+**1. Install dependencies**
+```powershell
+.venv\Scripts\activate
+pip install mcp httpx
+```
+
+**2. Find your Python path**
+```powershell
+where python
+# e.g. C:\Users\Anna\myproject\.venv\Scripts\python.exe
+```
+
+**3. Configure Claude Desktop**
+
+Open `%APPDATA%\Claude\claude_desktop_config.json` and add:
+```json
+{
+  "mcpServers": {
+    "irs-pricing": {
+      "command": "C:\\Users\\Anna\\myproject\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\Anna\\myproject\\mcp_server.py"]
+    }
+  }
+}
+```
+> Use double backslashes `\\` in all Windows paths.
+
+**4. Start the FastAPI server first**
+```powershell
+uvicorn src.my_package.main:app --reload
+```
+
+**5. Restart Claude Desktop**
+
+If the MCP server loaded correctly, a 🔨 hammer icon will appear in the chat input bar.
+
+**6. Chat naturally**
+
+Examples:
+- *"Price a 5 year payer swap at 4.5% fixed rate on 1 million notional"*
+- *"What's the DV01 of a 10Y receiver at 4.35%?"*
+- *"Run a +50bp scenario on a 10Y payer at 4.2%"*
+- *"Show the par rate timeseries for January 2026 on a 5Y payer"*
+
+### MCP in Action
+
+The Swagger UI showing all available endpoints:
+
+![Swagger UI](docs/screenshot_swagger.png)
+
+Claude Desktop calling the `price_swap_bumped` tool and returning a formatted scenario analysis:
+
+![MCP demo in Claude Desktop](docs/screenshot_mcp_demo.png)
+
+---
+
 ## Dependencies
 
 ```
@@ -178,6 +253,8 @@ pydantic>=2.0
 numpy
 requests
 scipy
+mcp
+httpx
 ```
 
 ---
