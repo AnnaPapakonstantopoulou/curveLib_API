@@ -1,0 +1,6 @@
+{
+  "maturity": 5,
+  "fixedRate": 0.05,
+  "notional": 1000000,
+  "payOrReceive": "pay"
+}

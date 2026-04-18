@@ -1,0 +1,10 @@
+{
+  "maturity": 5,
+  "fixedRate": 0.05,
+  "notional": 1000000,
+  "payOrReceive": "pay",
+  "fixedFreq": 2,
+  "floatFreq": 4,
+  "start_date": "2026-01-26",
+  "end_date": "2026-02-26"
+}

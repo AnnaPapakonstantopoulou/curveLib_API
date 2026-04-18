@@ -1,0 +1,26 @@
+how to run:
+open folder \anna_papakonstantopoulou_code_assignment into ide
+on a powershell terminal:
+1. create venv: python -m venv .venv
+2. activate venv: .venv\Scripts\activate
+3. install requirements: pip install -r requirements.txt
+4. to launch: uvicorn src.my_package.main:app --reload
+
+on the browser navigate to the local server that appears on the terminal
+example: INFO:     Uvicorn running on http://127.0.0.1:8000
+
+there you can navigate to http://127.0.0.1:8000/docs for the swagger UI to send requests.
+Note: on the swagger UI timeseries resposes are not visible when longer than 20 days 
+
+otherwise, some json request examples are included in the package as well,
+so after opening a bash terminal you can query the api as such:
+
+curl -X POST http://127.0.0.1:8000/instrument/pricing -H "Content-Type: application/json" -d @src/my_package/request_5y_payer.json
+
+this is expected to return a response:
+
+{"instrument":{"maturity":5.0,"fixedRate":0.045,"notional":1000000.0,"payOrReceive":"pay","fixedFreq":2,"floatFreq":4},
+"curve":"base","results":{"pv":372.7033089979668,"par_rate":0.04508458959995471,"dv01":440.60181062153197},
+"measure_definitions":{"pv":"present value of swap","par_rate":"fixed rate that makes PV = 0","dv01":"change in PV for 1bp change in fixed rate"},
+"explain":{"model":"discounted_cashflow_swap","curve_construction":"bootstrap deposits + FRAs + swaps"}}
+

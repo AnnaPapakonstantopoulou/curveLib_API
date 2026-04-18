@@ -1,0 +1,7 @@
+fastapi[standard]
+uvicorn[standard]
+pydantic>=2.0
+requests
+numpy
+mcp
+httpx
