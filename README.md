@@ -3,14 +3,22 @@
 A FastAPI-based REST API for pricing vanilla **Interest Rate Swaps (IRS)** using a bootstrapped discount curve. Built as a lightweight, LLM-friendly analytics backend.
 
 ---
+### Swagger UI and Claude with MCP server 
 
+The Swagger UI showing all available endpoints:
+
+![Swagger UI](docs/screenshot_swagger.png)
+
+Claude Desktop calling the `price_swap_bumped` tool and returning a formatted scenario analysis:
+
+![MCP demo in Claude Desktop](docs/screenshot_mcp_demo.png)
+
+---
 ## Overview
 
 This API bootstraps a discount curve from market instruments (deposits, FRAs, and swap rates) and exposes endpoints for pricing, scenario analysis, and historical timeseries generation of vanilla fixed-vs-float interest rate swaps.
 
 It is designed with **LLM integration in mind** — every response includes structured `explain` blocks with pre-computed summaries and model metadata, reducing the need for downstream interpretation.
-
----
 
 ## Features
 
@@ -67,6 +75,32 @@ The API will be available at `http://127.0.0.1:8000`.
 Navigate to `http://127.0.0.1:8000/docs` for the interactive Swagger UI.
 
 > **Note:** Timeseries responses longer than ~20 days may not render fully in the Swagger UI. Use `curl` for longer date ranges.
+
+---
+
+## Curve Construction
+
+The discount curve is bootstrapped sequentially:
+
+| Instrument | Tenors | Convention |
+|---|---|---|
+| Deposits | 1M, 3M, 6M | ACT/360 |
+| FRAs | 6M×9M → 21M×24M | ACT/360 |
+| Par Swaps | 3Y → 60Y | ACT/360, semi-annual fixed |
+
+Interpolation uses **log-linear** interpolation on discount factors between pillar dates.
+
+---
+
+## Assumptions & Limitations
+
+- Single-curve framework (no OIS/LIBOR basis)
+- ACT/360 day count for all instruments
+- Static, hardcoded market data (not live rates)
+- No CVA, FVA, or credit adjustments
+- Notional is not exchanged
+- Historical timeseries uses synthetic data (2 bps/day drift + random noise), not real historical rates
+- DV01 is an analytical approximation, not full bump-and-reprice
 
 ---
 
@@ -140,35 +174,7 @@ curl -X POST http://127.0.0.1:8000/instrument/pricing/timeseries \
   -H "Content-Type: application/json" \
   -d @src/my_package/request_par_rate_timeseries.json
 ```
-
 ---
-
-## Curve Construction
-
-The discount curve is bootstrapped sequentially:
-
-| Instrument | Tenors | Convention |
-|---|---|---|
-| Deposits | 1M, 3M, 6M | ACT/360 |
-| FRAs | 6M×9M → 21M×24M | ACT/360 |
-| Par Swaps | 3Y → 60Y | ACT/360, semi-annual fixed |
-
-Interpolation uses **log-linear** interpolation on discount factors between pillar dates.
-
----
-
-## Assumptions & Limitations
-
-- Single-curve framework (no OIS/LIBOR basis)
-- ACT/360 day count for all instruments
-- Static, hardcoded market data (not live rates)
-- No CVA, FVA, or credit adjustments
-- Notional is not exchanged
-- Historical timeseries uses synthetic data (2 bps/day drift + random noise), not real historical rates
-- DV01 is an analytical approximation, not full bump-and-reprice
-
----
-
 ## MCP Integration (Model Context Protocol)
 
 This project includes an **MCP server** (`mcp_server.py`) that wraps the FastAPI endpoints as callable tools, allowing any MCP-compatible LLM client (such as Claude Desktop) to price and analyse swaps directly in conversation — no manual API calls needed.
@@ -231,16 +237,6 @@ Examples:
 - *"What's the DV01 of a 10Y receiver at 4.35%?"*
 - *"Run a +50bp scenario on a 10Y payer at 4.2%"*
 - *"Show the par rate timeseries for January 2026 on a 5Y payer"*
-
-### MCP in Action
-
-The Swagger UI showing all available endpoints:
-
-![Swagger UI](docs/screenshot_swagger.png)
-
-Claude Desktop calling the `price_swap_bumped` tool and returning a formatted scenario analysis:
-
-![MCP demo in Claude Desktop](docs/screenshot_mcp_demo.png)
 
 ---
 
